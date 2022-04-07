@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/jay-lark/foxpass-go/users"
+	"github.com/jay-lark/foxpass-go/foxpass"
 )
 
 func main() {
@@ -26,12 +26,12 @@ func main() {
 		log.Fatalf("error sending HTTP request: %v", err)
 	}
 	responseBytes, err := ioutil.ReadAll(res.Body)
-	var weatherSamples []users.Users
+	var weatherSamples []foxpass.Users
 	if err := json.Unmarshal(responseBytes, &weatherSamples); err != nil {
 		log.Fatalf("error deserializing weather data")
 	}
 
-	for _, w := range users.Users {
+	for _, w := range foxpass.Users {
 		if w.Temp != nil && w.Temp.Value != nil {
 			log.Printf("The temperature at %s \n",
 				w.Email.Value)
