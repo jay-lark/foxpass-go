@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/jay-lark/foxpass-go/users"
 )
 
 func main() {
@@ -23,6 +26,19 @@ func main() {
 		log.Fatalf("error sending HTTP request: %v", err)
 	}
 	responseBytes, err := ioutil.ReadAll(res.Body)
+	var weatherSamples []users.Users
+	if err := json.Unmarshal(responseBytes, &weatherSamples); err != nil {
+		log.Fatalf("error deserializing weather data")
+	}
+
+	for _, w := range users.Users {
+		if w.Temp != nil && w.Temp.Value != nil {
+			log.Printf("The temperature at %s \n",
+				w.Email.Value)
+		} else {
+			log.Printf("No temperature data available at \n")
+		}
+	}
 	if err != nil {
 		log.Fatalf("error reading HTTP response body: %v", err)
 	}
