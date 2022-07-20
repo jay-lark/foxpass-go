@@ -1,26 +1,38 @@
-package users
+package foxpass
 
-import "time"
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
 
 type Users struct {
-	Status string `json:"status"`
-	Data   []struct {
-		Username       string      `json:"username"`
-		Email          string      `json:"email"`
-		UID            int         `json:"uid"`
-		Created        time.Time   `json:"created"`
-		Gid            int         `json:"gid"`
-		IsEngUser      bool        `json:"is_eng_user"`
-		IsPosixUser    bool        `json:"is_posix_user"`
-		IsActive       bool        `json:"is_active"`
-		Active         bool        `json:"active"`
-		Shell          interface{} `json:"shell"`
-		FirstName      string      `json:"first_name"`
-		LastName       string      `json:"last_name"`
-		GithubUsername interface{} `json:"github_username"`
-		CustomFields   struct {
-			DevUserName interface{} `json:"devUserName"`
-		} `json:"custom_fields"`
-	} `json:"data"`
-	Page interface{} `json:"page"`
+	Username  string `json:"username"`
+	IsEngUser bool   `json:"is_eng_user"`
+	LastName  string `json:"last_name"`
+	FirstName string `json:"first_name"`
+}
+
+func (c *Client) GetAllUsers(ctx context.Context) ([]string, error) {
+	res, err := c.doRequest(ctx, http.MethodGet, fmt.Sprintf("/users"), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	raw := map[string]json.RawMessage{}
+	err = json.NewDecoder(res.Body).Decode(&raw)
+	if err != nil {
+		return nil, err
+	}
+
+	var user []Users
+	err = json.Unmarshal(raw["data"], &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
